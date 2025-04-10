@@ -38,7 +38,9 @@ const ChatInterface = () => {
         const generator = await pipeline(
           'text-generation',
           'gpt2',
-          { max_length: 50 }
+          { 
+            maxLength: 50 
+          }
         );
         setModel(generator);
         setIsModelLoading(false);
@@ -170,8 +172,8 @@ const ChatInterface = () => {
       // Use the loaded GPT-2 model to generate a response
       if (model && !isModelLoading) {
         const result = await model(inputMessage, {
-          max_length: 100,
-          num_return_sequences: 1,
+          maxLength: 100,
+          numReturnSequences: 1,
         });
 
         // Extract the generated text from the result
