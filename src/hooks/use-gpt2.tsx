@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { pipeline } from '@huggingface/transformers';
 import { toast } from '@/hooks/use-toast';
@@ -20,7 +21,7 @@ export const useGPT2 = (): UseGPT2Return => {
         const generator = await pipeline(
           'text-generation',
           'gpt2',
-          {}
+          { device: 'cpu' }
         );
         setModel(generator);
         setIsModelLoading(false);
@@ -48,6 +49,7 @@ export const useGPT2 = (): UseGPT2Return => {
       const result = await model(prompt, {
         max_new_tokens: 100,
         num_return_sequences: 1,
+        temperature: 0.7,
       });
 
       // Extract the generated text from the result

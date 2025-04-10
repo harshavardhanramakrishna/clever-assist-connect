@@ -14,24 +14,37 @@ export const ChatMessage = ({ message, sender, timestamp, agentName }: ChatMessa
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const getSenderColor = () => {
+    switch (sender) {
+      case 'user':
+        return 'bg-primary text-white';
+      case 'bot':
+        return 'bg-gray-100 text-gray-800';
+      case 'human':
+        return 'bg-green-500 text-white';
+      case 'system':
+        return 'bg-gray-200 text-gray-700';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getSenderName = () => {
+    if (sender === 'bot') return 'Chatbot';
+    if (sender === 'human') return agentName || 'Agent';
+    return 'System';
+  };
+
   return (
     <div
       className={`flex ${sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
     >
       <div
-        className={`rounded-lg px-4 py-2 max-w-[75%] ${
-          sender === 'user'
-            ? 'bg-primary text-white'
-            : sender === 'bot'
-            ? 'bg-gray-100 text-gray-800'
-            : sender === 'human'
-            ? 'bg-green-500 text-white'
-            : 'bg-gray-200 text-gray-700'
-        }`}
+        className={`rounded-lg px-4 py-2 max-w-[75%] ${getSenderColor()}`}
       >
         {sender !== 'user' && (
           <div className="text-xs font-medium mb-1">
-            {sender === 'bot' ? 'Chatbot' : sender === 'human' ? agentName || 'Agent' : 'System'}
+            {getSenderName()}
           </div>
         )}
         <div className="whitespace-pre-wrap">{message}</div>

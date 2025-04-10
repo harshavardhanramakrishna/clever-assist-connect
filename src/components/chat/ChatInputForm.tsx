@@ -22,7 +22,7 @@ export const ChatInputForm = ({ onSendMessage, isLoading, onRequestHuman }: Chat
   };
 
   return (
-    <div className="p-4 border-t">
+    <div className="p-4 border-t bg-white">
       <form onSubmit={handleSubmit} className="flex space-x-2">
         <Input
           value={inputMessage}
@@ -30,6 +30,7 @@ export const ChatInputForm = ({ onSendMessage, isLoading, onRequestHuman }: Chat
           placeholder="Type your message..."
           disabled={isLoading}
           className="flex-1"
+          autoFocus
         />
         <Button type="submit" disabled={isLoading}>
           {isLoading ? (
@@ -46,7 +47,7 @@ export const ChatInputForm = ({ onSendMessage, isLoading, onRequestHuman }: Chat
         </Button>
       </form>
       <div className="mt-3 flex justify-center">
-        <Button variant="outline" size="sm" onClick={onRequestHuman}>
+        <Button variant="outline" size="sm" onClick={onRequestHuman} className="text-xs">
           Request Human Agent
         </Button>
       </div>

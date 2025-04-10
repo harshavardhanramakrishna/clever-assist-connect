@@ -63,6 +63,8 @@ const ChatInterface = () => {
   };
 
   const handleSendMessage = async (inputMessage: string) => {
+    if (!inputMessage.trim()) return;
+    
     const userMessage = {
       message: inputMessage,
       sender: 'user' as const,
@@ -94,6 +96,12 @@ const ChatInterface = () => {
       
       // Fallback to server response
       sendMessage(inputMessage, 'user');
+      
+      toast({
+        title: 'Error',
+        description: 'Failed to generate response. Falling back to server.',
+        variant: 'destructive'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -117,11 +125,21 @@ const ChatInterface = () => {
     
     requestHuman(userName, userEmail, issue);
     setShowHumanRequestForm(false);
+    
+    // Add system message about human request
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        message: 'Your request for a human agent has been submitted. An agent will join the chat shortly.',
+        sender: 'system',
+        timestamp: new Date().toISOString()
+      }
+    ]);
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <header className="p-4 bg-white border-b">
+    <div className="flex flex-col h-screen bg-gray-50">
+      <header className="p-4 bg-white border-b shadow-sm">
         <h1 className="text-xl font-bold text-center">Company Chat Assistant</h1>
       </header>
       
