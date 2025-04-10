@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,11 +36,12 @@ const ChatInterface = () => {
       try {
         setIsModelLoading(true);
         // Load the text generation model from Hugging Face
+        // Using proper options format for the pipeline
         const generator = await pipeline(
           'text-generation',
           'gpt2',
           { 
-            maxLength: 50 
+            // Removed maxLength as it's not a valid option in PretrainedModelOptions
           }
         );
         setModel(generator);
@@ -172,8 +174,9 @@ const ChatInterface = () => {
       // Use the loaded GPT-2 model to generate a response
       if (model && !isModelLoading) {
         const result = await model(inputMessage, {
-          maxLength: 100,
-          numReturnSequences: 1,
+          // Proper options for GPT-2 generation
+          max_new_tokens: 100,
+          num_return_sequences: 1,
         });
 
         // Extract the generated text from the result
