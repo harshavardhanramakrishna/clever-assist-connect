@@ -1,26 +1,136 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>clever-assist-connect</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clever Assist Connect</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- User Chat Interface -->
+        <div id="user-chat-interface" class="flex flex-col h-screen">
+            <!-- Header -->
+            <header class="bg-white shadow-sm py-4">
+                <div class="container mx-auto px-4 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <img src="https://via.placeholder.com/40x40" alt="Company Logo" class="h-10">
+                        <h1 class="ml-3 text-xl font-semibold text-gray-800">Clever Assist Connect</h1>
+                    </div>
+                    <div id="status-indicator" class="flex items-center">
+                        <span id="status-text" class="text-sm text-gray-600 mr-2">Chatbot Active</span>
+                        <span id="status-dot" class="h-3 w-3 bg-green-500 rounded-full"></span>
+                    </div>
+                </div>
+            </header>
 
-    <meta property="og:title" content="clever-assist-connect" />
-    <meta property="og:description" content="Lovable Generated Project" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+            <!-- Chat Container -->
+            <div class="flex-1 overflow-hidden container mx-auto px-4 py-6 flex flex-col">
+                <!-- Welcome Message -->
+                <div id="welcome-container" class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome to our Support Chat</h2>
+                    <p class="text-gray-600">Please provide your information to get started:</p>
+                    
+                    <form id="user-info-form" class="mt-4 bg-white p-6 rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">Name*</label>
+                            <input type="text" id="user-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="user-email" class="block text-sm font-medium text-gray-700 mb-1">Email (optional for chatbot)</label>
+                            <input type="email" id="user-email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-200">Start Chatting</button>
+                    </form>
+                </div>
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-  </head>
+                <!-- Chat Messages -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto pb-4 hidden"></div>
 
-  <body>
-    <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+                <!-- Request Human Button -->
+                <div id="request-human-container" class="mb-4 text-center hidden">
+                    <button id="request-human-btn" class="bg-white border border-indigo-500 text-indigo-600 px-4 py-2 rounded-md hover:bg-indigo-50 transition-colors">
+                        Request Human Agent
+                    </button>
+                </div>
+
+                <!-- Human Request Form -->
+                <div id="human-request-form-container" class="mb-4 hidden">
+                    <form id="human-request-form" class="bg-white p-4 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">Request Human Support</h3>
+                        <p class="text-sm text-gray-600 mb-4">Please confirm your information:</p>
+                        
+                        <div class="mb-3">
+                            <label for="hr-name" class="block text-sm font-medium text-gray-700 mb-1">Name*</label>
+                            <input type="text" id="hr-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="hr-email" class="block text-sm font-medium text-gray-700 mb-1">Email*</label>
+                            <input type="email" id="hr-email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="hr-issue" class="block text-sm font-medium text-gray-700 mb-1">Please describe your issue*</label>
+                            <textarea id="hr-issue" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required></textarea>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" id="cancel-request" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div id="chat-input-container" class="bg-white border-t border-gray-200 py-4 hidden">
+                <div class="container mx-auto px-4">
+                    <form id="chat-form" class="flex items-center space-x-3">
+                        <input type="text" id="message-input" class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Type your message here...">
+                        <button type="submit" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 transition duration-200">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Typing Indicator -->
+            <div id="typing-indicator" class="hidden bg-white border-t border-gray-200 py-2">
+                <div class="container mx-auto px-4">
+                    <div class="text-sm text-gray-500 flex items-center">
+                        <span class="mr-2">Someone is typing</span>
+                        <div class="flex space-x-1">
+                            <div class="typing-dot bg-gray-400 h-1.5 w-1.5 rounded-full animate-bounce"></div>
+                            <div class="typing-dot bg-gray-400 h-1.5 w-1.5 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            <div class="typing-dot bg-gray-400 h-1.5 w-1.5 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-200 py-3 absolute bottom-0 w-full hidden md:block">
+            <div class="container mx-auto px-4">
+                <div class="text-center text-sm text-gray-500">
+                    <p>© 2025 Clever Assist Connect. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Navigation Links -->
+        <div class="fixed bottom-5 right-5 flex flex-col space-y-2">
+            <a href="admin.html" class="bg-gray-800 text-white p-2 rounded-full shadow-lg hover:bg-gray-700 transition-colors">
+                <i class="fas fa-user-shield"></i>
+            </a>
+            <a href="agent.html" class="bg-gray-800 text-white p-2 rounded-full shadow-lg hover:bg-gray-700 transition-colors">
+                <i class="fas fa-headset"></i>
+            </a>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
 </html>
